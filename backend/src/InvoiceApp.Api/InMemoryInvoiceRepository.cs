@@ -19,18 +19,18 @@ public class InMemoryInvoiceRepository : IInvoiceRepository
 
     public IReadOnlyList<Invoice> GetAll()
     {
-        lock (_lock) return _invoices.ToList();
+        lock (_lock) return _invoices.Select(invoice => invoice.Copy()).ToList();
     }
 
     public Invoice? GetById(string id)
     {
-        lock (_lock) return _invoices.FirstOrDefault(i => i.Id == id);
+        lock (_lock) return _invoices.FirstOrDefault(i => i.Id == id)?.Copy();
     }
 
     public IReadOnlyList<Invoice> GetByIds(IEnumerable<string> ids)
     {
         var wanted = ids.ToHashSet();
-        lock (_lock) return _invoices.Where(i => wanted.Contains(i.Id)).ToList();
+        lock (_lock) return _invoices.Where(i => wanted.Contains(i.Id)).Select(invoice => invoice.Copy()).ToList();
     }
 
     public Invoice Add(Invoice invoice)
@@ -42,8 +42,9 @@ public class InMemoryInvoiceRepository : IInvoiceRepository
                 invoice.Id = $"INV-{_nextNumber++}";
             }
 
-            _invoices.Add(invoice);
-            return invoice;
+            var stored = invoice.Copy();
+            _invoices.Add(stored);
+            return stored.Copy();
         }
     }
 
@@ -52,7 +53,24 @@ public class InMemoryInvoiceRepository : IInvoiceRepository
         lock (_lock)
         {
             var index = _invoices.FindIndex(i => i.Id == invoice.Id);
-            if (index >= 0) _invoices[index] = invoice;
+            if (index >= 0) _invoices[index] = invoice.Copy();
+        }
+    }
+
+    public Invoice TransitionAtomically(string id, Func<Invoice, Invoice> transition)
+    {
+        lock (_lock)
+        {
+            var index = _invoices.FindIndex(invoice => invoice.Id == id);
+            if (index < 0)
+            {
+                throw new KeyNotFoundException($"Invoice {id} was not found.");
+            }
+
+            var candidate = _invoices[index].Copy();
+            var approved = transition(candidate);
+            _invoices[index] = approved.Copy();
+            return approved.Copy();
         }
     }
 

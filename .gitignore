@@ -8,3 +8,9 @@ node_modules/
 .env
 test-results/
 playwright-report/
+StrykerOutput/
+.codex/local/
+.codex/hooks/__pycache__/
+.codex/hooks/tests/__pycache__/
+PATCH-README.md
+/hooks

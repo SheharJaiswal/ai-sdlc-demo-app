@@ -8,10 +8,18 @@ internal class FakeInvoiceRepository : IInvoiceRepository
 
     public FakeInvoiceRepository(params Invoice[] seed) => _invoices.AddRange(seed);
 
-    public IReadOnlyList<Invoice> GetAll() => _invoices.ToList();
-    public Invoice? GetById(string id) => _invoices.FirstOrDefault(i => i.Id == id);
-    public IReadOnlyList<Invoice> GetByIds(IEnumerable<string> ids) => _invoices.Where(i => ids.Contains(i.Id)).ToList();
-    public Invoice Add(Invoice invoice) { _invoices.Add(invoice); return invoice; }
+    public IReadOnlyList<Invoice> GetAll() => _invoices.Select(invoice => invoice.Copy()).ToList();
+    public Invoice? GetById(string id) => _invoices.FirstOrDefault(i => i.Id == id)?.Copy();
+    public IReadOnlyList<Invoice> GetByIds(IEnumerable<string> ids) => _invoices.Where(i => ids.Contains(i.Id)).Select(invoice => invoice.Copy()).ToList();
+    public Invoice Add(Invoice invoice) { _invoices.Add(invoice.Copy()); return invoice.Copy(); }
     public void Update(Invoice invoice) { }
+    public Invoice TransitionAtomically(string id, Func<Invoice, Invoice> transition)
+    {
+        var index = _invoices.FindIndex(invoice => invoice.Id == id);
+        if (index < 0) throw new KeyNotFoundException($"Invoice {id} was not found.");
+        var updated = transition(_invoices[index].Copy());
+        _invoices[index] = updated.Copy();
+        return updated.Copy();
+    }
     public bool Remove(string id) => _invoices.RemoveAll(i => i.Id == id) > 0;
 }
