@@ -7,6 +7,7 @@ public class ApprovalServiceTests
 {
     private static readonly ApprovalActor Manager = new("manager.one", ApprovalRole.Manager);
     private static readonly ApprovalActor Director = new("director.one", ApprovalRole.Director);
+    private static readonly ApprovalActor SecondDirector = new("director.two", ApprovalRole.Director);
 
     private static Invoice InvoiceWith(string id, decimal amount, InvoiceStatus status = InvoiceStatus.PendingApproval) =>
         new() { Id = id, CustomerName = "Test School", Amount = amount, Status = status };
@@ -51,14 +52,48 @@ public class ApprovalServiceTests
     }
 
     [Fact]
-    public void Approve_RejectsAmountAboveUpperBoundaryWithoutMutation()
+    public void Approve_HighValueFirstManagerApprovalRemainsPendingThenDistinctDirectorCompletes()
+    {
+        var service = ServiceFor(InvoiceWith("INV-1", 500_000.01m));
+        var first = service.Approve("INV-1", Manager);
+        var final = service.Approve("INV-1", SecondDirector);
+        Assert.Equal(InvoiceStatus.PendingApproval, first.Status);
+        Assert.Single(first.ApprovalHistory);
+        Assert.Equal(InvoiceStatus.Approved, final.Status);
+        Assert.Equal(new[] { Manager.Identity, SecondDirector.Identity }, final.ApprovalHistory.Select(approval => approval.Identity));
+    }
+
+    [Fact]
+    public void Approve_HighValueFirstDirectorApprovalRemainsPending()
+    {
+        var result = ServiceFor(InvoiceWith("INV-1", 500_000.01m)).Approve("INV-1", Director);
+        Assert.Equal(InvoiceStatus.PendingApproval, result.Status);
+        Assert.Single(result.ApprovalHistory);
+    }
+
+    [Fact]
+    public void Approve_HighValueRejectsSameIdentityEvenWithDifferentRoleWithoutMutation()
     {
         var repository = new FakeInvoiceRepository(InvoiceWith("INV-1", 500_000.01m));
         var service = new ApprovalService(repository);
+        service.Approve("INV-1", Manager);
         var before = repository.GetById("INV-1")!;
-        var error = Assert.Throws<InvalidOperationException>(() => service.Approve("INV-1", Director));
+        var error = Assert.Throws<InvalidOperationException>(() => service.Approve("INV-1", new ApprovalActor(Manager.Identity, ApprovalRole.Director)));
         var after = repository.GetById("INV-1")!;
-        Assert.Contains("high-value approval workflow", error.Message);
+        Assert.Contains("cannot approve", error.Message);
+        AssertInvoiceUnchanged(before, after);
+    }
+
+    [Fact]
+    public void Approve_HighValueRejectsManagerAsSecondApproverWithoutMutation()
+    {
+        var repository = new FakeInvoiceRepository(InvoiceWith("INV-1", 500_000.01m));
+        var service = new ApprovalService(repository);
+        service.Approve("INV-1", Director);
+        var before = repository.GetById("INV-1")!;
+        var error = Assert.Throws<InvalidOperationException>(() => service.Approve("INV-1", new ApprovalActor("manager.two", ApprovalRole.Manager)));
+        var after = repository.GetById("INV-1")!;
+        Assert.Contains("different Director", error.Message);
         AssertInvoiceUnchanged(before, after);
     }
 

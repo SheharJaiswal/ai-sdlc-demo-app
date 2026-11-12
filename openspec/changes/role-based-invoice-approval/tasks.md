@@ -9,8 +9,8 @@
 
 - [x] 2.1 Add Domain representations for authenticated approver identity, Manager/Director role, and immutable approval-history entries; verify focused tests retain identity, role, and timestamp for accepted approvals.
 - [x] 2.2 Implement amount and role eligibility for 50,000, 50,001, 500,000, and 500,001; verify Manager and Director boundary tests and a Director 50,001 success test cover accepted and rejected outcomes.
-- [ ] 2.3 Implement high-value first and second approval sequencing; verify first Manager/Director approval remains PendingApproval and only a distinct Director completes approval.
-- [ ] 2.4 Validate all approval policy failures before mutation; verify each rejected attempt preserves invoice data, status, approval history, and timestamps while returning a clear reason.
+- [x] 2.3 Implement high-value first and second approval sequencing; verify first Manager/Director approval remains PendingApproval and only a distinct Director completes approval.
+- [x] 2.4 Validate all approval policy failures before mutation; verify each rejected attempt preserves invoice data, status, approval history, and timestamps while returning a clear reason.
 
 ## 3. Make approval persistence atomic
 
@@ -26,10 +26,10 @@
 
 ## 5. Validate browser behavior and regression coverage
 
-- [ ] 5.1 Add accessible page objects and Playwright scenarios for Manager, Director, high-value first/second approval, and visible failure feedback; verify locators use roles or labels only.
+- [x] 5.1 Add accessible page objects and Playwright scenarios for Manager, Director, high-value first/second approval, and visible failure feedback; verify locators use roles or labels only.
 - [x] 5.2 Add browser/API coverage that confirms rejected approvals leave displayed invoice status unchanged; verify no client path accesses persistence directly.
-- [ ] 5.3 Run the configured Release build, unit tests, and Playwright suite; verify all results are recorded with any unavailable prerequisites explicitly noted.
+- [x] 5.3 Run the configured Release build, unit tests, and Playwright suite; verify all results are recorded with any unavailable prerequisites explicitly noted.
 
 ## Workflow follow-up
 
-- [ ] Review the completed change artifacts and implementation evidence before archiving this OpenSpec change.
+- Review the completed change artifacts and implementation evidence before archiving this OpenSpec change.

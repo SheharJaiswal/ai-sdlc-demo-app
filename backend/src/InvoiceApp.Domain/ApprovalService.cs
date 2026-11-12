@@ -70,11 +70,6 @@ public class ApprovalService
     {
         EnsurePending(invoice);
 
-        if (invoice.Amount > 500_000m)
-        {
-            throw new InvalidOperationException("Invoices above 500,000 require a separate high-value approval workflow.");
-        }
-
         if (invoice.Amount <= 50_000m)
         {
             CompleteApproval(invoice, actor);
@@ -92,7 +87,29 @@ public class ApprovalService
             return invoice;
         }
 
-        throw new InvalidOperationException("Invoice amount is outside the single-approval policy.");
+        if (invoice.ApprovalHistory.Any(approval => approval.Identity == actor.Identity))
+        {
+            throw new InvalidOperationException("The same authenticated user cannot approve an invoice twice.");
+        }
+
+        if (invoice.ApprovalHistory.Count == 0)
+        {
+            invoice.RecordApproval(actor, DateTimeOffset.UtcNow);
+            return invoice;
+        }
+
+        if (invoice.ApprovalHistory.Count != 1)
+        {
+            throw new InvalidOperationException("Invoice approval history is not valid for another approval.");
+        }
+
+        if (actor.Role != ApprovalRole.Director)
+        {
+            throw new InvalidOperationException("The second approval for an invoice above 500,000 must be from a different Director.");
+        }
+
+        CompleteApproval(invoice, actor);
+        return invoice;
     }
 
     private static void CompleteApproval(Invoice invoice, ApprovalActor actor)

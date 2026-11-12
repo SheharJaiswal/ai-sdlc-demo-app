@@ -25,7 +25,7 @@
 
   function approvalProgress(invoice) {
     const approvals = invoice.approvalHistory || [];
-    const required = 1;
+    const required = invoice.amount > 500000 ? 2 : 1;
     const identities = approvals.map((approval) => `${approval.identity} (${approval.role})`).join(', ');
     return `${approvals.length}/${required} approval${required === 1 ? '' : 's'}${identities ? `: ${identities}` : ''}`;
   }
