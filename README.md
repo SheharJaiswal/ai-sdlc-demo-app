@@ -85,3 +85,5 @@ Install the .NET 8-compatible Stryker.NET version:
 
 ```powershell
 dotnet tool install -g dotnet-stryker --version 4.13.0
+cd backend\tests\InvoiceApp.Tests
+dotnet stryker --project InvoiceApp.Domain.csproj --configuration Release
