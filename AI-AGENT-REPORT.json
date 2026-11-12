@@ -1,0 +1,131 @@
+{
+  "schema_version": "1.0",
+  "report_type": "developer_handoff",
+  "report_id": "role-based-approval-handoff-2026-11-12",
+  "session_id": "sha256:a93a67b658df4be6",
+  "agent": {
+    "name": "Copilot SDK in VS Code",
+    "version": "1"
+  },
+  "status": "blocked",
+  "summary": "The OpenSpec proposal and both independently tested approval increments are committed. Local verification, mutation evidence, and sanitized handoff files are present. Publishing a pull request and recording/uploading the required demo remain external steps.",
+  "evidence": [
+    {
+      "kind": "document",
+      "reference": "openspec/changes/role-based-invoice-approval/",
+      "result": "pass"
+    },
+    {
+      "kind": "file",
+      "reference": "AGENTS.md",
+      "result": "observed"
+    },
+    {
+      "kind": "command",
+      "reference": "dotnet build backend\\InvoiceApp.sln --configuration Release",
+      "result": "pass"
+    },
+    {
+      "kind": "test",
+      "reference": "dotnet test backend\\InvoiceApp.sln --configuration Release --no-build (16 passed)",
+      "result": "pass"
+    },
+    {
+      "kind": "test",
+      "reference": "cd e2e; npm test (2 passed)",
+      "result": "pass"
+    },
+    {
+      "kind": "test",
+      "reference": "py -3 -m unittest discover -s .codex\\hooks\\tests -p test_*.py -v (24 passed)",
+      "result": "pass"
+    },
+    {
+      "kind": "test",
+      "reference": "Stryker.NET 4.13.0 baseline 30.77%; final 55.41%",
+      "result": "pass"
+    },
+    {
+      "kind": "diff",
+      "reference": "263694b, f414ff0, 60bede1",
+      "result": "observed"
+    }
+  ],
+  "findings": [
+    {
+      "id": "review-privacy-01",
+      "severity": "medium",
+      "summary": "The interaction hook retained prompt bodies; fixed by logging prompt length only and adding a regression test.",
+      "evidence": [
+        {
+          "kind": "file",
+          "reference": ".codex/hooks/log_hook_event.py",
+          "result": "pass"
+        },
+        {
+          "kind": "test",
+          "reference": ".codex/hooks/tests/test_hooks.py",
+          "result": "pass"
+        }
+      ],
+      "recommendation": "Fixed and confirmed in follow-up review."
+    },
+    {
+      "id": "review-atomicity-02",
+      "severity": "medium",
+      "summary": "Approval and rejection did not share an atomic repository transition; fixed by applying both under the same transition lock.",
+      "evidence": [
+        {
+          "kind": "file",
+          "reference": "backend/src/InvoiceApp.Api/InMemoryInvoiceRepository.cs",
+          "result": "pass"
+        },
+        {
+          "kind": "test",
+          "reference": "backend/tests/InvoiceApp.Tests/InMemoryInvoiceRepositoryTests.cs",
+          "result": "pass"
+        }
+      ],
+      "recommendation": "Fixed and confirmed in follow-up review."
+    }
+  ],
+  "risks": [
+    "The local review findings are not a substitute for the required workshop review prompt against the actual published pull request.",
+    "A video URL and pull request URL are not yet available."
+  ],
+  "decisions_needed": [
+    "Publish the branch as a pull request and record the workshop review's fixed, dismissed, or deferred verdict for every finding.",
+    "Record and upload the 8–10 minute live demo, then add its URL to ASSIGNMENT.md."
+  ],
+  "validation": {
+    "commands_executed": [
+      "dotnet build backend\\InvoiceApp.sln --configuration Release",
+      "dotnet test backend\\InvoiceApp.sln --configuration Release --no-build",
+      "cd e2e; npm test",
+      "py -3 -m unittest discover -s .codex\\hooks\\tests -p test_*.py -v",
+      "py -3 .codex\\hooks\\validate_agent_report.py AI-AGENT-REPORT.json",
+      "Stryker.NET 4.13.0 Release baseline and final mutation runs for InvoiceApp.Domain with InvoiceApp.Tests"
+    ],
+    "commands_not_run": [
+      "Workshop review prompt against a published pull request; no pull request has been opened.",
+      "8–10 minute video recording/upload; requires an interactive screen recorder and upload destination."
+    ]
+  },
+  "payload": {
+    "commits": [
+      "263694b docs: specify role-based invoice approval",
+      "f414ff0 feat: enforce single-approver role limits",
+      "60bede1 feat: require distinct director approval for high-value invoices"
+    ],
+    "mutation_scores": {
+      "baseline_percent": 30.77,
+      "final_percent": 55.41,
+      "killed": 41,
+      "survived": 5,
+      "tested": 46
+    },
+    "pr_url": null,
+    "demo_video_url": null
+  },
+  "generated_at": "2026-11-12T12:34:22Z"
+}

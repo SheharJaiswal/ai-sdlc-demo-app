@@ -1,0 +1,86 @@
+{
+  "description": "Sanitized AI SDLC lifecycle logging and optional structured-report validation.",
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 .codex/hooks/log_hook_event.py UserPromptSubmit",
+            "windows": "py -3 .codex/hooks/log_hook_event.py UserPromptSubmit",
+            "timeout": 10,
+            "statusMessage": "Recording sanitized prompt metadata"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 .codex/hooks/log_hook_event.py PostToolUse",
+            "windows": "py -3 .codex/hooks/log_hook_event.py PostToolUse",
+            "timeout": 10,
+            "statusMessage": "Recording sanitized tool metadata"
+          }
+        ]
+      }
+    ],
+    "SubagentStart": [
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 .codex/hooks/log_hook_event.py SubagentStart",
+            "windows": "py -3 .codex/hooks/log_hook_event.py SubagentStart",
+            "timeout": 10,
+            "statusMessage": "Recording subagent start"
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 .codex/hooks/log_hook_event.py SubagentStop",
+            "windows": "py -3 .codex/hooks/log_hook_event.py SubagentStop",
+            "timeout": 10,
+            "statusMessage": "Recording subagent completion"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 .codex/hooks/validate_on_stop.py",
+            "windows": "py -3 .codex/hooks/validate_on_stop.py",
+            "timeout": 10,
+            "statusMessage": "Validating requested structured report"
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 .codex/hooks/finalize_session.py",
+            "windows": "py -3 .codex/hooks/finalize_session.py",
+            "timeout": 3,
+            "statusMessage": "Finalizing sanitized interaction log"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "schema_version": "1.0",
+  "report_type": "qa",
+  "report_id": "fixture-missing-001",
+  "session_id": "redacted-session-id",
+  "agent": { "name": "qa-engineer", "version": "1" },
+  "status": "complete",
+  "summary": "Missing payload.",
+  "evidence": [],
+  "findings": [],
+  "risks": [],
+  "decisions_needed": [],
+  "validation": { "commands_executed": [], "commands_not_run": [] },
+  "generated_at": "2026-11-12T00:00:00Z"
+}

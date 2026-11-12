@@ -1,0 +1,18 @@
+{
+  "schema_version": "1.0",
+  "report_type": "security",
+  "report_id": "fixture-severity-001",
+  "session_id": "redacted-session-id",
+  "agent": { "name": "security-reviewer", "version": "1" },
+  "status": "complete",
+  "summary": "Invalid finding severity.",
+  "evidence": [],
+  "findings": [
+    { "id": "F-1", "severity": "urgent", "summary": "Invalid severity.", "evidence": [] }
+  ],
+  "risks": [],
+  "decisions_needed": [],
+  "validation": { "commands_executed": [], "commands_not_run": [] },
+  "payload": {},
+  "generated_at": "2026-11-12T00:00:00Z"
+}
