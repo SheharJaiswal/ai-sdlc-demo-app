@@ -35,20 +35,28 @@ All API endpoints require sign-in except `POST /api/auth/login`. Use `[RequireRo
 
 ## Approved invoice-approval policy
 
-These are binding business rules for the role-based approval feature:
+These are binding business rules for the role-based approval feature.
+
+### 1. Independent approval limits
 
 1. For an invoice amount up to and including 50,000, either a Manager or a Director can independently approve it.
 2. For an invoice amount above 50,000 and up to and including 500,000, only a Director can independently approve it.
-3. An invoice above 500,000 requires two approvals.
-4. For an invoice above 500,000, the first approver may be either a Manager or a Director.
-5. The second approver for an invoice above 500,000 must be a Director and must differ from the first approver.
-6. The same user must never count as two approvers, even if their role or request differs.
-7. After a valid first approval above 500,000, the invoice remains `PendingApproval`.
-8. It becomes `Approved` only after the valid second approval.
-9. Every rejected approval attempt must return a clear business reason.
-10. A rejected approval attempt must not change invoice data, status, approval history, or timestamps.
 
-Treat 50,000 and 500,000 as inclusive boundaries. Validate all policy conditions before mutation. Preserve approval identity and history sufficiently to enforce distinct users and second-approver requirements. Approval recording must be atomic for the configured repository so concurrent requests cannot bypass policy or record an invalid outcome.
+### 2. Two-person approval
+
+3. An invoice above 500,000 requires two approvals.
+4. The first approver may be either a Manager or a Director.
+5. The second approver must be a Director and must be a different user from the first approver.
+
+### 3. Approval invariants
+
+6. The same user must never count as two approvers, regardless of role or request.
+7. After the first valid approval of an invoice above 500,000, its status remains `PendingApproval`.
+8. The invoice becomes `Approved` only after the valid second approval.
+9. Every rejected approval attempt must return a clear business reason.
+10. A rejected attempt must not change invoice data, status, approval history, or timestamps.
+11. Validate all policy conditions before mutating invoice state.
+12. Approval recording must be atomic to prevent concurrent requests from bypassing approval requirements.
 
 ## Coding and design expectations
 
