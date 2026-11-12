@@ -78,3 +78,10 @@ AGENTS.md                 conventions for AI coding agents
 
 - [UC-1 Bulk invoice approval](docs/use-cases/UC-1-bulk-approval.md)
 - [UC-2 Partial approval](docs/use-cases/UC-2-partial-approval.md)
+
+### Mutation tests
+
+Install the .NET 8-compatible Stryker.NET version:
+
+```powershell
+dotnet tool install -g dotnet-stryker --version 4.13.0
