@@ -12,7 +12,9 @@ Open http://localhost:5000 and sign in:
 
 | User | Password | Role |
 | --- | --- | --- |
-| `demo.approver` | `ChangeMe123!` | Approver |
+| `demo.manager` | `ChangeMe123!` | Manager |
+| `demo.director` | `ChangeMe123!` | Director |
+| `demo.director2` | `ChangeMe123!` | Director |
 | `demo.admin` | `ChangeMe123!` | Admin |
 
 These are demo accounts for a local, in-memory app. They are not real credentials.
@@ -21,14 +23,44 @@ These are demo accounts for a local, in-memory app. They are not real credential
 
 1. Create an invoice (it starts as a draft).
 2. Submit it for approval.
-3. An approver approves it, or rejects it with a reason.
+3. An authorized approver approves it or rejects it with a reason.
 
-Invoices move through Draft, Pending Approval, then Approved or Rejected.
+Invoices move through Draft, Pending Approval, then Approved or Rejected. Approval limits are role-based:
+
+- A Manager or Director can independently approve invoices up to and including 50,000.
+- Only a Director can independently approve invoices above 50,000 and up to and including 500,000.
+- Invoices above 500,000 need two approvals. The first approver can be a Manager or Director; the second must be a different Director.
+- The API derives approver identity and role from the signed-in account. Rejected approval attempts return a reason and leave the invoice unchanged.
+
+Approval history is shown with each invoice so users can see approval progress.
 
 ## Tests
 
+Run the backend unit and API tests from the repository root:
+
 ```
 dotnet test backend/InvoiceApp.sln
+```
+
+Run the browser tests from `e2e` (Node.js dependencies and Playwright Chromium must be installed):
+
+```powershell
+cd e2e
+npm install
+npx playwright install chromium
+npm test
+```
+
+To watch the browser while the tests run:
+
+```powershell
+npm run test:headed
+```
+
+To run only the role-based approval scenarios:
+
+```powershell
+npx playwright test tests\role-based-invoice-approval.spec.ts
 ```
 
 ## Project layout
