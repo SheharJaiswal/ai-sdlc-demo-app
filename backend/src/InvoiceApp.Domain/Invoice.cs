@@ -10,4 +10,24 @@ public class Invoice
     public string? DecidedBy { get; set; }
     public DateTime? DecidedAt { get; set; }
     public string? DecisionNote { get; set; }
+    public IReadOnlyList<ApprovalRecord> ApprovalHistory { get; private set; } = Array.Empty<ApprovalRecord>();
+
+    public void RecordApproval(ApprovalActor actor, DateTimeOffset timestamp) =>
+        ApprovalHistory = ApprovalHistory.Append(new ApprovalRecord(actor.Identity, actor.Role, timestamp)).ToArray();
+
+    public Invoice Copy()
+    {
+        return new Invoice
+        {
+            Id = Id,
+            CustomerName = CustomerName,
+            Amount = Amount,
+            Status = Status,
+            CreatedAt = CreatedAt,
+            DecidedBy = DecidedBy,
+            DecidedAt = DecidedAt,
+            DecisionNote = DecisionNote,
+            ApprovalHistory = ApprovalHistory.ToArray()
+        };
+    }
 }
