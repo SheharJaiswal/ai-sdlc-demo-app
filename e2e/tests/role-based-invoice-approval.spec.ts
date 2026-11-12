@@ -30,3 +30,15 @@ test('a distinct Director completes a high-value approval', async ({ page }) => 
   await director.approvalButton(invoiceId).click();
   await director.expectInvoiceProgress(invoiceId, '2/2 approvals: demo.manager (Manager), demo.director (Director)');
 });
+
+test('rejects invalid approval', async ({ page }) => {
+  const app = new InvoiceAppPage(page);
+  await app.signIn('demo.manager');
+
+  const invoiceId = await app.createAndSubmitInvoice('50000.01');
+  await app.openApprovals();
+  await app.approvalButton(invoiceId).click();
+
+  await app.expectDecisionError('Invoices above 50,000 require Director approval.');
+  await app.expectInvoiceState(invoiceId, 'Pending Approval', '0/1 approval');
+});
